@@ -30,6 +30,7 @@
 
   <main class="container">
     <!-- Hero Section -->
+    <!-- Hero Section -->
     <section class="hero-section">
       <div class="user-welcome">
         <div class="welcome-text">
@@ -58,11 +59,11 @@
       </div>
       
       <!-- Barra de Progresso -->
-      <div class="progress-container" style="margin-top: 20px;">
+      <div class="progress-container">
         <div class="progress-bar">
           <div class="progress-fill"></div>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-top: 5px;">
+        <div>
           <span>Nível {{ progresso.nivel if progresso else 1 }}</span>
           <span>{{ (progresso.xp % 100) if progresso else 0 }}/100 XP</span>
         </div>
