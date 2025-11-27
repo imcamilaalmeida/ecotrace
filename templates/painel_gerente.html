@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoTrace - Painel do Gerente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/painel_gerente.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="navbar">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='imagens/logo.jpg') }}" alt="EcoTrace Logo" style="height: 40px;">
+        </div>
+        <div class="user-info">
+          <div class="avatar">{{ session.nome[0] | upper }}</div>
+          <span>Olá, {{ session.nome }} (Gerente)</span>
+          <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-small">Sair</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  <div id="flash-messages" class="flash-messages"></div>
+
+  <main class="container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">Painel do Gerente</h1>
+      <div class="dashboard-actions">
+        <button id="create-machine-btn" class="btn btn-primary">Nova Máquina</button>
+        <button onclick="exportData()" class="btn btn-secondary">Exportar Dados</button>
+      </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="overview-cards">
+      <div class="overview-card">
+        <div class="overview-icon">👥</div>
+        <div class="overview-value">{{ metricas_gerais.total_funcionarios if metricas_gerais else 0 }}</div>
+        <div class="overview-label">Funcionários</div>
+      </div>
+      <div class="overview-card">
+        <div class="overview-icon">🏭</div>
+        <div class="overview-value">{{ metricas_gerais.total_maquinas if metricas_gerais else 0 }}</div>
+        <div class="overview-label">Máquinas</div>
+      </div>
+      <div class="overview-card">
+        <div class="overview-icon">⚡</div>
+        <div class="overview-value">{{ "%.1f"|format(metricas_gerais.eficiencia_media_geral) if metricas_gerais and metricas_gerais.eficiencia_media_geral else 0 }}%</div>
+        <div class="overview-label">Eficiência Média</div>
+      </div>
+      <div class="overview-card">
+        <div class="overview-icon">📈</div>
+        <div class="overview-value">+2.5%</div>
+        <div class="overview-label">Crescimento</div>
+      </div>
+    </div>
+
+    <!-- Gráficos -->
+    <section class="charts-section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Métricas de Eficiência</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div class="chart-container">
+            <canvas id="efficiency-chart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="progress-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Máquinas -->
+    <section class="machines-section">
+      <div class="card">
+        <div class="section-header">
+          <h2 class="section-title">Minhas Máquinas</h2>
+          <div class="section-actions">
+            <button id="create-machine-btn-2" class="btn btn-primary btn-small">Nova Máquina</button>
+          </div>
+        </div>
+        
+        {% if maquinas %}
+        <div class="machine-list">
+          {% for maquina in maquinas %}
+          <div class="machine-item">
+            <div class="machine-item-header">
+              <div class="machine-item-name">{{ maquina.nome }}</div>
+              <div class="machine-invite-code">{{ maquina.codigo_convite }}</div>
+            </div>
+            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">{{ maquina.descricao }}</p>
+            
+            <div class="machine-stats">
+              <div class="machine-stat">
+                <div class="machine-stat-value">78%</div>
+                <div class="machine-stat-label">Eficiência</div>
+              </div>
+              <div class="machine-stat">
+                <div class="machine-stat-value">3</div>
+                <div class="machine-stat-label">Funcionários</div>
+              </div>
+            </div>
+            
+            <div class="machine-actions">
+              <button class="btn btn-secondary btn-small ver-detalhes-btn" data-machine-id="{{ maquina.id }}" data-machine-name="{{ maquina.nome }}">Ver Detalhes</button>
+              <button class="btn btn-secondary btn-small editar-btn" data-machine-id="{{ maquina.id }}">Editar</button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">🏭</div>
+          <h3>Nenhuma máquina cadastrada</h3>
+          <p>Crie sua primeira máquina para começar a monitorar a eficiência energética.</p>
+          <button id="create-machine-btn-3" class="btn btn-primary" style="margin-top: 15px;">Criar Máquina</button>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Ranking -->
+    <section class="ranking-section">
+      <div class="card">
+        <div class="section-header">
+          <h2 class="section-title">Ranking de Funcionários</h2>
+          <div class="section-actions">
+            <select id="ranking-filter" class="form-select" style="width: auto;" onchange="filterRanking()">
+              <option value="all">Todos</option>
+              <option value="high">Alto Desempenho</option>
+              <option value="medium">Médio Desempenho</option>
+              <option value="low">Baixo Desempenho</option>
+            </select>
+          </div>
+        </div>
+        
+        {% if ranking %}
+        <table class="ranking-table">
+          <thead>
+            <tr>
+              <th>Posição</th>
+              <th>Nome</th>
+              <th>Eficiência Média</th>
+              <th>Nível</th>
+              <th>XP</th>
+              <th>Streak</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for funcionario in ranking %}
+            <tr>
+              <td class="ranking-position">{{ loop.index }}</td>
+              <td>
+                <div class="ranking-user">
+                  <div class="user-avatar">{{ funcionario.nome[0] | upper if funcionario.nome else '?' }}</div>
+                  <span>{{ funcionario.nome if funcionario.nome else 'Nome não disponível' }}</span>
+                </div>
+              </td>
+              <td>
+                {% if funcionario.eficiencia_media and funcionario.eficiencia_media > 0 %}
+                <div class="efficiency-high" style="display: inline-block; padding: 3px 8px; border-radius: 12px;">
+                  {{ "%.1f"|format(funcionario.eficiencia_media) }}%
+                </div>
+                {% else %}
+                <span style="color: #999;">---</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="ranking-level">
+                  <span class="level-badge" style="width: 30px; height: 30px; font-size: 14px;">{{ funcionario.nivel if funcionario.nivel else 1 }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="ranking-xp">
+                  <span>⚡</span>
+                  <span>{{ funcionario.xp if funcionario.xp else 0 }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="ranking-xp">
+                  <span>🔥</span>
+                  <span>{{ funcionario.streak if funcionario.streak else 0 }}</span>
+                </div>
+              </td>
+              <td>
+                <button class="btn btn-secondary btn-small send-feedback-btn" 
+                        data-user-id="{{ funcionario.id }}" 
+                        data-user-name="{{ funcionario.nome if funcionario.nome else 'Funcionário' }}">
+                  Feedback
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">👥</div>
+          <h3>Nenhum funcionário vinculado</h3>
+          <p>Compartilhe os códigos de convite com seus funcionários para começar.</p>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Criar Máquina -->
+  <div id="create-machine-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Criar Nova Máquina</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="create-machine-form" class="metrics-form">
+          <div class="form-group">
+            <label class="form-label" for="nome">Nome da Máquina</label>
+            <input type="text" class="form-input" id="nome" name="nome" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="descricao">Descrição</label>
+            <textarea class="form-input" id="descricao" name="descricao" rows="3"></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Criar Máquina</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Enviar Feedback -->
+  <div id="feedback-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Enviar Feedback</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="feedback-form" class="feedback-form">
+          <div class="form-group">
+            <label class="form-label">Para</label>
+            <div class="feedback-recipient" id="feedback-recipient-container">
+              <div class="user-avatar" id="feedback-recipient-avatar">U</div>
+              <span id="feedback-recipient-name">Nome do Funcionário</span>
+              <input type="hidden" id="feedback-destinatario-id" name="destinatario_id" value="">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="feedback-maquina-id">Máquina (opcional)</label>
+            <select class="form-select" id="feedback-maquina-id" name="maquina_id">
+              <option value="">Selecione uma máquina</option>
+              {% for maquina in maquinas %}
+              <option value="{{ maquina.id }}">{{ maquina.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Tipo de Feedback</label>
+            <div class="feedback-type-selector">
+              <div class="feedback-type-option elogio" data-type="elogio">Elogio</div>
+              <div class="feedback-type-option sugestao selected" data-type="sugestao">Sugestão</div>
+              <div class="feedback-type-option alerta" data-type="alerta">Alerta</div>
+            </div>
+            <input type="hidden" id="feedback-type" name="tipo" value="sugestao">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="feedback-mensagem">Mensagem</label>
+            <textarea class="form-input" id="feedback-mensagem" name="mensagem" rows="4" required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar Feedback</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/painel_gerente.js') }}"></script>
+</body>
+</html>

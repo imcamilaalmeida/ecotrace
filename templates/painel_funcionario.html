@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoTrace - Painel do Funcionário</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/painel_funcionario.css') }}">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="navbar">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='imagens/logo.jpg') }}" alt="EcoTrace Logo" style="height: 40px;">
+        </div>
+        <div class="user-info">
+          <div class="avatar">{{ session.nome[0] | upper }}</div>
+          <span>Olá, {{ session.nome }}</span>
+          <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-small">Sair</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  <div id="flash-messages" class="flash-messages"></div>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="user-welcome">
+        <div class="welcome-text">
+          <h1>Bem-vindo, {{ session.nome }}!</h1>
+          <p>Continue seu progresso em eficiência energética</p>
+        </div>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-value nivel">{{ progresso.nivel if progresso else 1 }}</div>
+            <div class="stat-label">Nível</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value xp">{{ progresso.xp if progresso else 0 }}</div>
+            <div class="stat-label">XP</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ progresso.streak if progresso else 0 }}</div>
+            <div class="stat-label">Dias Consecutivos</div>
+            {% if progresso and progresso.streak > 0 %}
+            <div class="streak-counter">
+              <span class="streak-flame">🔥</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Barra de Progresso -->
+      <div class="progress-container" style="margin-top: 20px;">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-top: 5px;">
+          <span>Nível {{ progresso.nivel if progresso else 1 }}</span>
+          <span>{{ (progresso.xp % 100) if progresso else 0 }}/100 XP</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trilha Contínua Vertical -->
+    <section class="learning-path">
+      <div class="path-header">
+        <h2>Trilha de Eficiência Energética</h2>
+        <p>Complete as atividades em ordem e avance na sua jornada sustentável</p>
+      </div>
+      
+      <div class="path-container-continuous">
+        <!-- Linha vertical conectando os círculos -->
+        <div class="path-connector"></div>
+        
+        <!-- Atividade 1 -->
+        <div class="path-item">
+          <div class="path-circle active" data-unit-id="fundamentos-energia" data-unit-name="Fundamentos da Energia" data-unit-type="fundamentos">
+            <div class="circle-number">1</div>
+            <div class="circle-label">Básico</div>
+          </div>
+          <div class="path-content">
+            <div class="path-title">Fundamentos da Energia</div>
+            <div class="path-desc">Aprenda os conceitos básicos de eficiência energética</div>
+            <div class="path-meta">
+              <div class="path-xp">⚡ +25 XP</div>
+              <div class="path-status status-active">Disponível</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atividade 2 -->
+        <div class="path-item">
+          <div class="path-circle active" data-unit-id="monitoramento-consumo" data-unit-name="Monitoramento de Consumo" data-unit-type="monitoramento">
+            <div class="circle-number">2</div>
+            <div class="circle-label">Monitorar</div>
+          </div>
+          <div class="path-content">
+            <div class="path-title">Monitoramento de Consumo</div>
+            <div class="path-desc">Acompanhe e analise o consumo energético</div>
+            <div class="path-meta">
+              <div class="path-xp">⚡ +30 XP</div>
+              <div class="path-status status-active">Disponível</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atividade 3 -->
+        <div class="path-item">
+          <div class="path-circle active" data-unit-id="praticas-eficiencia" data-unit-name="Práticas de Eficiência" data-unit-type="praticas">
+            <div class="circle-number">3</div>
+            <div class="circle-label">Otimizar</div>
+          </div>
+          <div class="path-content">
+            <div class="path-title">Práticas de Eficiência</div>
+            <div class="path-desc">Implemente melhorias no uso de energia</div>
+            <div class="path-meta">
+              <div class="path-xp">⚡ +35 XP</div>
+              <div class="path-status status-active">Disponível</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atividade 4 -->
+        <div class="path-item">
+          <div class="path-circle active" data-unit-id="analise-dados" data-unit-name="Análise de Dados" data-unit-type="analise">
+            <div class="circle-number">4</div>
+            <div class="circle-label">Analisar</div>
+          </div>
+          <div class="path-content">
+            <div class="path-title">Análise de Dados</div>
+            <div class="path-desc">Interprete métricas e identifique oportunidades</div>
+            <div class="path-meta">
+              <div class="path-xp">⚡ +40 XP</div>
+              <div class="path-status status-active">Disponível</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atividade 5 -->
+        <div class="path-item">
+          <div class="path-circle active" data-unit-id="sustentabilidade" data-unit-name="Práticas Sustentáveis" data-unit-type="sustentabilidade">
+            <div class="circle-number">5</div>
+            <div class="circle-label">Sustentar</div>
+          </div>
+          <div class="path-content">
+            <div class="path-title">Práticas Sustentáveis</div>
+            <div class="path-desc">Adote hábitos eco-friendly no trabalho</div>
+            <div class="path-meta">
+              <div class="path-xp">⚡ +45 XP</div>
+              <div class="path-status status-active">Disponível</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atividade 6 -->
+        <div class="path-item">
+          <div class="path-circle active" data-unit-id="otimizacao-avancada" data-unit-name="Otimização Avançada" data-unit-type="otimizacao">
+            <div class="circle-number">6</div>
+            <div class="circle-label">Especialista</div>
+            <div class="achievement-badge">⭐</div>
+          </div>
+          <div class="path-content">
+            <div class="path-title">Otimização Avançada</div>
+            <div class="path-desc">Técnicas avançadas para máxima eficiência</div>
+            <div class="path-meta">
+              <div class="path-xp">⚡ +50 XP</div>
+              <div class="path-status status-active">Disponível</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ofensiva e Pontuação -->
+      <div class="offensive-section">
+        <div class="offensive-title">🏆 Ofensiva da Eficiência</div>
+        <p style="opacity: 0.9; margin-bottom: 15px;">Participe da competição semanal e ganhe recompensas extras!</p>
+        
+        <div class="offensive-stats">
+          <div class="offensive-stat">
+            <div class="offensive-value">{{ progresso.xp if progresso else 0 }}</div>
+            <div class="offensive-label">XP Total</div>
+          </div>
+          <div class="offensive-stat">
+            <div class="offensive-value">{{ progresso.nivel if progresso else 1 }}</div>
+            <div class="offensive-label">Nível Atual</div>
+          </div>
+          <div class="offensive-stat">
+            <div class="offensive-value">{{ progresso.streak if progresso else 0 }}</div>
+            <div class="offensive-label">Dias Consecutivos</div>
+          </div>
+          <div class="offensive-stat">
+            <div class="offensive-value">#{{ progresso.nivel * 2 if progresso else 1 }}</div>
+            <div class="offensive-label">Posição no Ranking</div>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" style="margin-top: 20px; background: rgba(255,255,255,0.2); border: 2px solid white;">
+          🎯 Ver Ranking Completo
+        </button>
+      </div>
+    </section>
+
+    <!-- Ações Rápidas -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Ações Rápidas</h2>
+      </div>
+      <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <button id="register-metrics-btn" class="btn btn-primary">Registrar Métricas</button>
+        <button id="link-machine-btn" class="btn btn-secondary">Vincular Máquina</button>
+        <button id="send-feedback-btn" class="btn btn-secondary">Enviar Feedback</button>
+      </div>
+    </section>
+
+    <!-- Minhas Máquinas -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Minhas Máquinas</h2>
+      </div>
+      
+      {% if maquinas %}
+      <div class="machines-grid">
+        {% for maquina in maquinas %}
+        <div class="machine-card">
+          <div class="machine-header">
+            <div class="machine-name">{{ maquina.nome }}</div>
+            <div class="machine-efficiency efficiency-high">85%</div>
+          </div>
+          <p style="font-size: 14px; color: #666; margin-bottom: 15px;">{{ maquina.descricao }}</p>
+          <div class="machine-metrics">
+            <div class="metric">
+              <div class="metric-value">150</div>
+              <div class="metric-label">kWh útil</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">180</div>
+              <div class="metric-label">kWh total</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">42</div>
+              <div class="metric-label">Unid.</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🏭</div>
+        <h3>Nenhuma máquina vinculada</h3>
+        <p>Use o código de convite do seu gerente para vincular uma máquina.</p>
+        <button id="link-machine-btn-2" class="btn btn-primary" style="margin-top: 15px;">Vincular Máquina</button>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- Feedbacks -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          Feedbacks 
+          {% if feedbacks %}
+          <span id="unread-feedback-badge" class="xp-badge">{{ feedbacks|length }}</span>
+          {% endif %}
+        </h2>
+      </div>
+      
+      {% if feedbacks %}
+      <div class="feedback-list">
+        {% for feedback in feedbacks %}
+        <div class="feedback-item" data-feedback-id="{{ feedback.id }}">
+          <div class="feedback-header">
+            <div class="feedback-sender">{{ feedback.remetente_nome }}</div>
+            <div class="feedback-type {{ feedback.tipo }}">{{ feedback.tipo|title }}</div>
+          </div>
+          <div class="feedback-machine">{{ feedback.maquina_nome }}</div>
+          <div class="feedback-message">{{ feedback.mensagem }}</div>
+          <div class="feedback-actions">
+            <button class="btn btn-primary btn-small mark-feedback-read" data-feedback-id="{{ feedback.id }}">Marcar como lido</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h3>Nenhum feedback não lido</h3>
+        <p>Você está em dia com suas comunicações!</p>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- Conquistas -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Conquistas</h2>
+      </div>
+      
+      {% if conquistas %}
+      <div class="achievements-grid">
+        {% for conquista in conquistas %}
+        <div class="achievement-card">
+          <div class="achievement-icon">🏆</div>
+          <div class="achievement-name">{{ conquista.nome }}</div>
+          <div class="achievement-desc">{{ conquista.descricao }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🏆</div>
+        <h3>Nenhuma conquista ainda</h3>
+        <p>Complete atividades para desbloquear conquistas!</p>
+      </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <!-- Modal Registrar Métricas -->
+  <div id="metrics-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Métricas da Máquina</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="metrics-form" class="metrics-form">
+          <div class="form-group">
+            <label class="form-label" for="maquina_id">Máquina</label>
+            <select class="form-select" id="maquina_id" name="maquina_id" required>
+              <option value="">Selecione uma máquina</option>
+              {% for maquina in maquinas %}
+              <option value="{{ maquina.id }}">{{ maquina.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="energia_util">Energia Útil Produzida (kWh)</label>
+            <input type="number" step="0.01" class="form-input" id="energia_util" name="energia_util" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="energia_total">Energia Total Consumida (kWh)</label>
+            <input type="number" step="0.01" class="form-input" id="energia_total" name="energia_total" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="producao">Produção (Unidades)</label>
+            <input type="number" step="1" class="form-input" id="producao" name="producao" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="emissao_gas">Emissão de Gases (kg CO₂)</label>
+            <input type="number" step="0.01" class="form-input" id="emissao_gas" name="emissao_gas">
+          </div>
+          
+          <div class="metrics-preview">
+            <h4>Pré-visualização da Eficiência</h4>
+            <p>Eficiência Energética: <span id="eficiencia-preview" class="efficiency-high">0%</span></p>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Registrar Métricas</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Vincular Máquina -->
+  <div id="link-machine-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Vincular Máquina</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="link-machine-form" class="metrics-form">
+          <div class="form-group">
+            <label class="form-label" for="codigo_convite">Código de Convite</label>
+            <input type="text" class="form-input" id="codigo_convite" name="codigo_convite" placeholder="Ex: A1B2C3" required>
+            <small style="color: #666; font-size: 14px;">Peça o código de convite ao seu gerente</small>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Vincular Máquina</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Enviar Feedback -->
+  <div id="feedback-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Enviar Feedback</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="feedback-form" class="feedback-form">
+          <div class="form-group">
+            <label class="form-label" for="destinatario_id">Para</label>
+            <select class="form-select" id="destinatario_id" name="destinatario_id" required>
+              <option value="">Selecione um destinatário</option>
+              <!-- Opções seriam preenchidas via AJAX com colegas/gerentes -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="maquina_id">Máquina (opcional)</label>
+            <select class="form-select" id="maquina_id" name="maquina_id">
+              <option value="">Selecione uma máquina</option>
+              {% for maquina in maquinas %}
+              <option value="{{ maquina.id }}">{{ maquina.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Tipo de Feedback</label>
+            <div class="feedback-type-selector">
+              <div class="feedback-type-option elogio" data-type="elogio">Elogio</div>
+              <div class="feedback-type-option sugestao selected" data-type="sugestao">Sugestão</div>
+              <div class="feedback-type-option alerta" data-type="alerta">Alerta</div>
+            </div>
+            <input type="hidden" id="feedback-type" name="tipo" value="sugestao">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="mensagem">Mensagem</label>
+            <textarea class="form-input" id="mensagem" name="mensagem" rows="4" required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar Feedback</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/painel_funcionario.js') }}"></script>
+</body>
+</html>
